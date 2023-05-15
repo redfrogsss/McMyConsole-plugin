@@ -3,3 +3,8 @@ version: 1.0 # the plugin's version
 author: redfrogss
 main: dev.redfrogss.mcmyconsole.McMyConsole
 api-version: 1.19 # the version of the API you want to use, required starting with 1.13
+commands:
+  mcmyconsole:
+    description: Show Description of this plugin
+    usage: /<command>
+    permission: mcmyconsole.mcmyconsole

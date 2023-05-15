@@ -8,6 +8,8 @@ public class McMyConsole extends JavaPlugin {
     @Override
     public void onEnable() {
         Bukkit.getLogger().info(ChatColor.RED + " Enabled " + this.getName());
+
+        this.getCommand("mcmyconsole").setExecutor(new CommandMcmyconsole());
     }
 
     @Override
