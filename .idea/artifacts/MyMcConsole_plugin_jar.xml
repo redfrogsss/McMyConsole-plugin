@@ -2,10 +2,10 @@
   <artifact type="jar" name="MyMcConsole-plugin:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/MyMcConsole_plugin_jar</output-path>
     <root id="archive" name="MyMcConsole-plugin.jar">
-      <element id="module-output" name="MyMcConsole-plugin" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../../../BuildTools/Spigot/Spigot-API/target/spigot-api-1.19.4-R0.1-SNAPSHOT-shaded.jar" path-in-jar="/" />
+      <element id="module-output" name="McMyConsole-plugin" />
       <element id="file-copy" path="$PROJECT_DIR$/src/plugin.yml" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/json-20230227.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../BuildTools/Spigot/Spigot-API/target/spigot-api-1.19.4-R0.1-SNAPSHOT-shaded.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

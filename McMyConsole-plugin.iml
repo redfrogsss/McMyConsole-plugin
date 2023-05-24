@@ -7,15 +7,15 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="json" level="project" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../BuildTools/Spigot/Spigot-API/target/spigot-api-1.19.4-R0.1-SNAPSHOT-shaded.jar!/" />
+          <root url="jar://$MODULE_DIR$/../BuildTools/Spigot/Spigot-API/target/spigot-api-1.19.4-R0.1-SNAPSHOT-shaded.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="json" level="project" />
   </component>
 </module>
