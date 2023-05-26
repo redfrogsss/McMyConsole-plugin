@@ -1,10 +1,7 @@
 package dev.redfrogss.mcmyconsole;
 
 import com.sun.net.httpserver.HttpServer;
-import dev.redfrogss.mcmyconsole.httpapi.MyHandler;
-import dev.redfrogss.mcmyconsole.httpapi.PlayerCountHandler;
-import dev.redfrogss.mcmyconsole.httpapi.PlayerHandler;
-import dev.redfrogss.mcmyconsole.httpapi.ShutdownHandler;
+import dev.redfrogss.mcmyconsole.httpapi.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,6 +25,7 @@ public class McMyConsole extends JavaPlugin {
             server.createContext("/playerCount", new PlayerCountHandler());
             server.createContext("/player", new PlayerHandler(this));
             server.createContext("/shutdown", new ShutdownHandler(this));
+            server.createContext("/serverStatus", new ServerStatusHandler());
 
             server.setExecutor(null); // creates a default executor
             server.start();
