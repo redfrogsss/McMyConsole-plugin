@@ -1,6 +1,7 @@
 package dev.redfrogss.mcmyconsole;
 
 import com.sun.net.httpserver.HttpServer;
+import dev.redfrogss.mcmyconsole.classes.ServerInfo;
 import dev.redfrogss.mcmyconsole.httpapi.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,10 +11,14 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class McMyConsole extends JavaPlugin {
+
+    private long serverStartTimestamp;
     @Override
     public void onEnable() {
 
         this.getCommand("mcmyconsole").setExecutor(new CommandMcmyconsole());
+
+        serverStartTimestamp = System.currentTimeMillis();
 
         // http server
         HttpServer server = null;
@@ -26,6 +31,7 @@ public class McMyConsole extends JavaPlugin {
             server.createContext("/player", new PlayerHandler(this));
             server.createContext("/shutdown", new ShutdownHandler(this));
             server.createContext("/serverStatus", new ServerStatusHandler());
+            server.createContext("/serverInfo", new ServerInfoHandler(serverStartTimestamp));
 
             server.setExecutor(null); // creates a default executor
             server.start();
