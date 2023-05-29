@@ -1,6 +1,7 @@
 package dev.redfrogss.mcmyconsole;
 
 import com.sun.net.httpserver.HttpServer;
+import dev.redfrogss.mcmyconsole.classes.LogAppender;
 import dev.redfrogss.mcmyconsole.classes.ServerInfo;
 import dev.redfrogss.mcmyconsole.httpapi.*;
 import org.bukkit.Bukkit;
@@ -9,16 +10,26 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+
+import org.apache.logging.log4j.LogManager;
 
 public class McMyConsole extends JavaPlugin {
 
     private long serverStartTimestamp;
+
+    private static final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
+
+    public ArrayList<String> consoleLogs = new ArrayList<String>();
     @Override
     public void onEnable() {
 
-        this.getCommand("mcmyconsole").setExecutor(new CommandMcmyconsole());
+        LogAppender appender = new LogAppender(consoleLogs);
+        logger.addAppender(appender);
 
         serverStartTimestamp = System.currentTimeMillis();
+
+        this.getCommand("mcmyconsole").setExecutor(new CommandMcmyconsole());
 
         // http server
         HttpServer server = null;
@@ -32,6 +43,7 @@ public class McMyConsole extends JavaPlugin {
             server.createContext("/shutdown", new ShutdownHandler(this));
             server.createContext("/serverStatus", new ServerStatusHandler());
             server.createContext("/serverInfo", new ServerInfoHandler(serverStartTimestamp));
+            server.createContext("/consoleLogs", new ConsoleLogsHandler(consoleLogs));
 
             server.setExecutor(null); // creates a default executor
             server.start();

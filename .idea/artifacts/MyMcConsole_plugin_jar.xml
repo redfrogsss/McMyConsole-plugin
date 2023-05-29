@@ -6,6 +6,8 @@
       <element id="file-copy" path="$PROJECT_DIR$/src/plugin.yml" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/json-20230227.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../BuildTools/Spigot/Spigot-API/target/spigot-api-1.19.4-R0.1-SNAPSHOT-shaded.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/log4j-core-2.19.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/log4j-api-2.19.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
