@@ -6,6 +6,7 @@ import dev.redfrogss.mcmyconsole.classes.ServerInfo;
 import dev.redfrogss.mcmyconsole.httpapi.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class McMyConsole extends JavaPlugin {
             server.createContext("/serverStatus", new ServerStatusHandler());
             server.createContext("/serverInfo", new ServerInfoHandler(serverStartTimestamp));
             server.createContext("/consoleLogs", new ConsoleLogsHandler(consoleLogs));
+            server.createContext("/command", new CommandHandler(this));
 
             server.setExecutor(null); // creates a default executor
             server.start();
