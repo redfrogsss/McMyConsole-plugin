@@ -6,44 +6,23 @@ import dev.redfrogss.mcmyconsole.classes.InputStreamUtils;
 import dev.redfrogss.mcmyconsole.classes.User;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.json.JSONObject;
 
 import java.io.*;
 
-public class CommandHandler implements HttpHandler {
+public class AuthHandler implements HttpHandler {
 
-    private Plugin plugin;
-    private FileConfiguration config;
+    FileConfiguration config;
 
-    public CommandHandler (Plugin plugin, FileConfiguration config) {
-        this.plugin = plugin;
+    public AuthHandler (FileConfiguration config) {
         this.config = config;
     }
 
-    private void executeCommand (String command) {
-        try {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                @Override
-                public void run () {
-                    Bukkit.getLogger().info("[McMyConsole] Executing Command: " + command);
-
-            //        send command
-                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
-                }
-            });
-
-        } catch (Exception e) {
-            Bukkit.getLogger().info(e.toString());
-        }
-    }
     public void handle(HttpExchange t) throws IOException {
+        String username, password;
         String response = "";
 
-//        Check HTTP Method
         String method = t.getRequestMethod();   // value: GET, POST, etc.
-
         if (!method.equals("POST")) {
             t.sendResponseHeaders(405, 0);
             OutputStream os = t.getResponseBody();
@@ -54,15 +33,13 @@ public class CommandHandler implements HttpHandler {
 
         InputStream is = t.getRequestBody();
         JSONObject requestBodyJSON = new InputStreamUtils(is).toJSON();
-        String command = requestBodyJSON.getString("command");
-        String username = requestBodyJSON.getString("username");
-        String password = requestBodyJSON.getString("password");
+        username = requestBodyJSON.getString("username");
+        password = requestBodyJSON.getString("password");
 
         boolean isValidLogin = new User(config).checkUser(username, password);
         int rCode;
 
         if (isValidLogin) {
-            executeCommand(command);
             rCode = 200;
         } else {
             rCode = 401;

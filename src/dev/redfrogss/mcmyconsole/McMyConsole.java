@@ -3,10 +3,12 @@ package dev.redfrogss.mcmyconsole;
 import com.sun.net.httpserver.HttpServer;
 import dev.redfrogss.mcmyconsole.classes.LogAppender;
 import dev.redfrogss.mcmyconsole.classes.ServerInfo;
+import dev.redfrogss.mcmyconsole.classes.User;
 import dev.redfrogss.mcmyconsole.httpapi.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -22,8 +24,18 @@ public class McMyConsole extends JavaPlugin {
     private static final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
 
     public ArrayList<String> consoleLogs = new ArrayList<String>();
+
+    FileConfiguration config;
+
     @Override
     public void onEnable() {
+        config = this.getConfig();
+
+        config.addDefault("username", "admin");
+        config.addDefault("password", "ValidPassword123");
+
+        config.options().copyDefaults(true);
+        saveConfig();
 
         LogAppender appender = new LogAppender(consoleLogs);
         logger.addAppender(appender);
@@ -40,12 +52,13 @@ public class McMyConsole extends JavaPlugin {
 
             server.createContext("/test", new MyHandler());
             server.createContext("/playerCount", new PlayerCountHandler());
-            server.createContext("/player", new PlayerHandler(this));
-            server.createContext("/shutdown", new ShutdownHandler(this));
+            server.createContext("/player", new PlayerHandler(this, config));
+            server.createContext("/shutdown", new ShutdownHandler(this, config));
             server.createContext("/serverStatus", new ServerStatusHandler());
             server.createContext("/serverInfo", new ServerInfoHandler(serverStartTimestamp));
             server.createContext("/consoleLogs", new ConsoleLogsHandler(consoleLogs));
-            server.createContext("/command", new CommandHandler(this));
+            server.createContext("/command", new CommandHandler(this, config));
+            server.createContext("/auth", new AuthHandler(config));
 
             server.setExecutor(null); // creates a default executor
             server.start();

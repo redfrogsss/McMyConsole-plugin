@@ -2,8 +2,11 @@ package dev.redfrogss.mcmyconsole.httpapi;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import dev.redfrogss.mcmyconsole.classes.InputStreamUtils;
+import dev.redfrogss.mcmyconsole.classes.User;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.json.JSONObject;
@@ -15,10 +18,12 @@ import java.util.List;
 
 public class PlayerHandler implements HttpHandler {
 
-    protected Plugin plugin;
+    private Plugin plugin;
+    private FileConfiguration config;
 
-    public PlayerHandler(Plugin p) {
+    public PlayerHandler(Plugin p, FileConfiguration config) {
         plugin = p;
+        this.config = config;
     }
 
     private void kickPlayerInGame (String playerName, String reason) {
@@ -41,19 +46,9 @@ public class PlayerHandler implements HttpHandler {
     }
 
     public void handle(HttpExchange t) throws IOException {
-        String requestBody = "";
         String response = "";
 
         InputStream is = t.getRequestBody();
-
-//        convert is to string
-        StringBuilder stringBuilder = new StringBuilder();
-
-        new BufferedReader(new InputStreamReader(is))
-                .lines()
-                .forEach( (String s) -> stringBuilder.append(s + "\n") );
-
-        requestBody = stringBuilder.toString();
 
 //        Check HTTP Method
         String method = t.getRequestMethod();   // value: GET, POST, etc.
@@ -90,81 +85,74 @@ public class PlayerHandler implements HttpHandler {
         }
 
 //        Handle POST Request
-        if (method.equals("POST")) {
-            JSONObject requestBodyJSON = new JSONObject(requestBody);
+        JSONObject requestBodyJSON = new InputStreamUtils(is).toJSON();
 
-//            Player player = Bukkit.getPlayer(requestBodyJSON.getString("player"));
-            String playerName = requestBodyJSON.getString("player");
-            String action = requestBodyJSON.getString("action");
+        String playerName = requestBodyJSON.getString("player");
+        String action = requestBodyJSON.getString("action");
+        String username = requestBodyJSON.getString("username");
+        String password = requestBodyJSON.getString("password");
 
-            if (!(action.equals("kick") || action.equals("ban") || action.equals("ban-ip"))) {
-                response = "Invalid `action` in request body.";
+        boolean isValidLogin = new User(config).checkUser(username, password);
+        int rCode;
 
-                t.sendResponseHeaders(400, response.length());
-                OutputStream os = t.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
-                return;
-            }
+        if (!isValidLogin) {
+            rCode = 401;
 
-            Bukkit.getLogger().info("Player: " + playerName);
-            Bukkit.getLogger().info("Action: " + action);
+            t.sendResponseHeaders(rCode, 0);
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+            return;
+        }
 
-            if (action.equals("kick")) {
-                Bukkit.getLogger().info("Kicking Player " + playerName);
-                String reason = "You have been kicked.";
+        if (!(action.equals("kick") || action.equals("ban") || action.equals("ban-ip"))) {
+            response = "Invalid `action` in request body.";
 
-                kickPlayerInGame(playerName, reason);
+            t.sendResponseHeaders(400, response.length());
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+            return;
+        }
 
-//                for (Player p : Bukkit.getOnlinePlayers()) {
-//                    if (p.getName().equals(playerName)) {
-//                        Bukkit.getLogger().info("Kicked Player " + playerName);
-//                        try {
-////                            p.kickPlayer(reason);
-//                            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-//                                @Override
-//                                public void run () {
-//                                    p.kickPlayer(reason);
-//                                }
-//                            });
-//
-//                        } catch (Exception e) {
-//                            Bukkit.getLogger().info(e.toString());
-//                        }
-//                    }
-//                }
-//
+        Bukkit.getLogger().info("Player: " + playerName);
+        Bukkit.getLogger().info("Action: " + action);
 
-                t.sendResponseHeaders(200, 0);
-                OutputStream os = t.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
-                return;
-            }
+        if (action.equals("kick")) {
+            Bukkit.getLogger().info("Kicking Player " + playerName);
+            String reason = "You have been kicked.";
 
-            if (action.equals("ban")) {
-                String reason = "You have been banned.";
-                Bukkit.getBanList(BanList.Type.NAME).addBan(playerName, reason, null, null);
-                kickPlayerInGame(playerName, reason);
+            kickPlayerInGame(playerName, reason);
 
-                t.sendResponseHeaders(200, 0);
-                OutputStream os = t.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
-                return;
-            }
+            t.sendResponseHeaders(200, 0);
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+            return;
+        }
 
-            if (action.equals("ban-ip")) {
-                String reason = "Your IP has been banned.";
-                Bukkit.getBanList(BanList.Type.IP).addBan(playerName, reason, null, null);
-                kickPlayerInGame(playerName, reason);
+        if (action.equals("ban")) {
+            String reason = "You have been banned.";
+            Bukkit.getBanList(BanList.Type.NAME).addBan(playerName, reason, null, null);
+            kickPlayerInGame(playerName, reason);
 
-                t.sendResponseHeaders(200, 0);
-                OutputStream os = t.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
-                return;
-            }
+            t.sendResponseHeaders(200, 0);
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+            return;
+        }
+
+        if (action.equals("ban-ip")) {
+            String reason = "Your IP has been banned.";
+            Bukkit.getBanList(BanList.Type.IP).addBan(playerName, reason, null, null);
+            kickPlayerInGame(playerName, reason);
+
+            t.sendResponseHeaders(200, 0);
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+            return;
         }
     }
 }
